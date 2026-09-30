@@ -12,9 +12,9 @@ Version control: git
 The app has no runtime dependencies beyond Python's standard library (tkinter, time, enum).
 
 The code is split into three parts:
-`flowmodoro/logic.py`: the break maths and time formatting.
-`flowmodoro/timer.py`: the timer state machine.
-`flowmodoro/ui.py`: the window and the mascot.
+- `flowmodoro/logic.py`: the break maths and time formatting.
+- `flowmodoro/timer.py`: the timer state machine.
+- `flowmodoro/ui.py`: the window and the mascot.
 
 ## Run
 
