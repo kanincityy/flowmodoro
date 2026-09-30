@@ -27,3 +27,6 @@ uv run main.py
 ```
 uv run pytest
 ```
+
+## Contributions
+General MIT license. Feel free to fork, suggest algo improvements, etc. Thanks!
