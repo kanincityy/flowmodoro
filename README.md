@@ -1,6 +1,6 @@
 # flowmodoro
 
-A small, cute, vibe-coded flowmodoro timer with St. Bernard mascot inspired by my dog, Thor 🐶 Focus on a task for as long as you like. When you press pause, it suggests a break of one fifth of your focus time.
+A small, cute, vibe-coded flowmodoro timer with St. Bernard mascot inspired by my dog, Thor 🐶 Focus on a task for as long as you like. When you press pause, it suggests a break of one fifth of your focus time, which is hilariously tiny if you press it after working for about 10 seconds lol
 
 Language: Python 3.1
 GUI: Tkinter. The mascot and the button are drawn on a Tkinter Canvas, not built from ready-made widgets
