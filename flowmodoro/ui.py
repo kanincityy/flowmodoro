@@ -9,16 +9,24 @@ WIDTH, HEIGHT = 320, 480
 TICK_MS = 200
 FONT = "Arial Rounded MT Bold"
 
-BG = "#FFF1F5"
-BODY = "#FFD6E8"
-BODY_OUTLINE = "#F7A8C8"
-CHEEK = "#FF9EBB"
-INK = "#6B4E71"
-BUTTON = "#FF8FB1"
-BUTTON_HOVER = "#FF7AA3"
-SPARKLE = "#B39DDB"
+BG = "#FDEBD3"
+BODY = "#F3D3A8"
+BODY_OUTLINE = "#D9A066"
+CHEEK = "#F4A9A0"
+INK = "#6B4A3A"
+BUTTON = "#E9946A"
+BUTTON_HOVER = "#DC8257"
+SPARKLE = "#E8B26A"
+FUR = "#FFFBF2"
+NOSE = "#3E2C2A"
+TONGUE = "#F58FA0"
+BROWN = "#C48E5E"
+BROWN_DARK = "#A9713F"
+BARREL = "#DDA55E"
+BARREL_DARK = "#B9803F"
+CROSS = "#E0453A"
 PLACEHOLDER = "to do: ..."
-PLACEHOLDER_FG = "#C9B3CF"
+PLACEHOLDER_FG = "#CDB8A0"
 MASCOT_Y = 165
 
 
@@ -180,53 +188,79 @@ class App:
             self._drawn_key = key
 
     def _draw_mascot(self, state: State, phase: int) -> None:
+        """Soft kawaii St. Bernard puppy: brown head, white blaze, tiny rescue barrel."""
         c = self.canvas
         c.delete("mascot")
         cx, cy = WIDTH // 2, MASCOT_Y
         bob = -4 if phase else 0
+        cy += bob
 
-        # body blob + little ears
-        for dx in (-46, 46):
-            c.create_oval(cx + dx - 18, cy - 82 + bob, cx + dx + 18, cy - 44 + bob,
-                          fill=BODY, outline=BODY_OUTLINE, width=3, tags="mascot")
-        c.create_oval(cx - 74, cy - 64 + bob, cx + 74, cy + 70 + bob,
-                      fill=BODY, outline=BODY_OUTLINE, width=3, tags="mascot")
-        # cheeks
-        for dx in (-44, 44):
-            c.create_oval(cx + dx - 12, cy + 16 + bob, cx + dx + 12, cy + 30 + bob,
+        def oval(x1, y1, x2, y2, fill):
+            c.create_oval(cx + x1, cy + y1, cx + x2, cy + y2, fill=fill, outline="", tags="mascot")
+
+        # head, white blaze down the middle, white cheeks
+        oval(-72, -62, 72, 70, BROWN)
+        oval(-26, -60, 26, 30, FUR)
+        oval(-58, 2, 58, 68, FUR)
+        # floppy ears hang over the sides of the head
+        for sign in (-1, 1):
+            pts = [(44, -50), (76, -58), (98, -24), (96, 32), (76, 52), (54, 14)]
+            flat = [v for x, y in pts for v in (cx + sign * x, cy + y)]
+            c.create_polygon(flat, smooth=True, fill=BROWN_DARK, outline="", tags="mascot")
+        # blush + nose
+        for dx in (-50, 50):
+            c.create_oval(cx + dx - 12, cy + 20, cx + dx + 12, cy + 34,
                           fill=CHEEK, outline="", stipple="gray50", tags="mascot")
+        oval(-9, 12, 9, 25, NOSE)
+        oval(-5, 14, -1, 17, "white")
 
-        ey = cy + 2 + bob
+        ey = cy - 4
+        if state is State.PAUSED:
+            # tongue out, happy smile
+            oval(-6, 33, 6, 47, TONGUE)
+            for x1, x2 in ((-14, 0), (0, 14)):
+                c.create_arc(cx + x1, cy + 22, cx + x2, cy + 38, start=180, extent=180,
+                             style="arc", outline=INK, width=3, tags="mascot")
+            c.create_line(cx, cy + 25, cx, cy + 30, fill=INK, width=3,
+                          capstyle="round", tags="mascot")
+        else:
+            # rescue barrel held in the mouth
+            x1, y1, x2, y2, r = cx - 28, cy + 60, cx + 24, cy + 82, 9
+            pts = [
+                x1 + r, y1, x2 - r, y1, x2, y1, x2, y1 + r, x2, y2 - r, x2, y2,
+                x2 - r, y2, x1 + r, y2, x1, y2, x1, y2 - r, x1, y1 + r, x1, y1,
+            ]
+            c.create_polygon(pts, smooth=True, fill=BARREL, outline="", tags="mascot")
+            for rx in (cx - 17, cx + 13):
+                c.create_line(rx, y1 + 2, rx, y2 - 2, fill=BARREL_DARK, width=2, tags="mascot")
+            c.create_oval(cx - 8, cy + 65, cx + 4, cy + 77, fill="white", outline="", tags="mascot")
+            c.create_line(cx - 6, cy + 71, cx + 2, cy + 71, fill=CROSS, width=3, tags="mascot")
+            c.create_line(cx - 2, cy + 67, cx - 2, cy + 75, fill=CROSS, width=3, tags="mascot")
+
         if state is State.IDLE:
-            for dx in (-28, 28):  # sleepy closed eyes
-                c.create_arc(cx + dx - 12, ey - 8, cx + dx + 12, ey + 10, start=200,
+            for dx in (-38, 38):  # sleepy closed eyes
+                c.create_arc(cx + dx - 11, ey - 8, cx + dx + 11, ey + 10, start=200,
                              extent=140, style="arc", outline=INK, width=3, tags="mascot")
-            c.create_arc(cx - 8, cy + 24, cx + 8, cy + 38, start=200, extent=140,
-                         style="arc", outline=INK, width=3, tags="mascot")
-            c.create_text(cx + 70, cy - 60, text="z z", font=(FONT, 16),
+            c.create_text(cx + 122, cy - 70, text="z z", font=(FONT, 16),
                           fill=SPARKLE, tags="mascot")
         elif state is State.FOCUSING:
-            for dx in (-28, 28):  # determined round eyes + brows
-                c.create_oval(cx + dx - 7, ey - 7, cx + dx + 7, ey + 7,
-                              fill=INK, outline="", tags="mascot")
-                c.create_oval(cx + dx - 3, ey - 4, cx + dx, ey - 1,
+            for dx in (-38, 38):  # determined round eyes + brows
+                c.create_oval(cx + dx - 6, ey - 8, cx + dx + 6, ey + 8,
+                              fill=NOSE, outline="", tags="mascot")
+                c.create_oval(cx + dx - 3, ey - 5, cx + dx, ey - 2,
                               fill="white", outline="", tags="mascot")
-            c.create_line(cx - 38, ey - 18, cx - 18, ey - 14, fill=INK, width=3,
+            c.create_line(cx - 48, ey - 20, cx - 28, ey - 16, fill=INK, width=3,
                           capstyle="round", tags="mascot")
-            c.create_line(cx + 38, ey - 18, cx + 18, ey - 14, fill=INK, width=3,
+            c.create_line(cx + 48, ey - 20, cx + 28, ey - 16, fill=INK, width=3,
                           capstyle="round", tags="mascot")
-            c.create_line(cx - 8, cy + 30, cx + 8, cy + 30, fill=INK, width=3,
-                          capstyle="round", tags="mascot")
-            spark = "✦" if phase else "✧"
-            for sx, sy in ((cx - 100, cy - 30), (cx + 100, cy - 10), (cx + 84, cy - 76)):
+            spark = "\u2726" if phase else "\u2727"
+            for sx, sy in ((cx - 124, cy - 50), (cx + 124, cy - 30), (cx + 98, cy - 92)):
                 c.create_text(sx, sy, text=spark, font=(FONT, 20),
                               fill=SPARKLE, tags="mascot")
         else:  # PAUSED: happy
-            for dx in (-28, 28):
-                c.create_arc(cx + dx - 12, ey - 6, cx + dx + 12, ey + 14, start=20,
+            for dx in (-38, 38):
+                c.create_arc(cx + dx - 11, ey - 4, cx + dx + 11, ey + 14, start=20,
                              extent=140, style="arc", outline=INK, width=3, tags="mascot")
-            c.create_arc(cx - 12, cy + 16, cx + 12, cy + 40, start=200, extent=140,
-                         style="chord", fill=CHEEK, outline=INK, width=2, tags="mascot")
-            c.create_text(cx + 92, cy + 48, text="☕", font=(FONT, 26), tags="mascot")
-            c.create_text(cx - 96, cy - 40, text="♡", font=(FONT, 20),
+            c.create_text(cx + 120, cy + 56, text="\u2615", font=(FONT, 26), tags="mascot")
+            c.create_text(cx - 124, cy - 60, text="\u2661", font=(FONT, 20),
                           fill=CHEEK, tags="mascot")
